@@ -21,9 +21,8 @@ const updateOne = async (id, body) => {
   const keysEtalon = ['name', 'login', 'password'];
   const keys = Object.keys(body);
   const valid = keysEtalon.some(item => keys.indexOf(item) !== -1);
-  const excess = keys.some(item => keysEtalon.indexOf(item) === -1);
   const indexOne = dbUsers.findIndex(item => item.id === id);
-  if (indexOne === -1 || !valid || excess) {
+  if (indexOne === -1 || !valid) {
     throw Error(`Bad request, id: ${id}`);
   }
   dbUsers[indexOne] = { ...dbUsers[indexOne], ...body };
@@ -48,5 +47,6 @@ module.exports = {
   getOne,
   delOne,
   updateOne,
-  createOne
+  createOne,
+  dbUsers
 };

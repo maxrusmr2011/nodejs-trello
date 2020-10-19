@@ -44,7 +44,6 @@ describe('Tasks suite', () => {
       .send(TEST_TASK_DATA)
       .then(res => (testTaskId = res.body.id));
   });
-
   afterAll(async () => {
     await request
       .delete(routes.boards.delete(testBoardId))

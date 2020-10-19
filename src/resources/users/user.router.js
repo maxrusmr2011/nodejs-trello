@@ -20,7 +20,7 @@ router.route('/:id').get(async (req, res) => {
 router.route('/:id').delete(async (req, res) => {
   try {
     await usersService.delOne(req.params.id);
-    res.status(204).end();
+    res.status(200).end();
   } catch (e) {
     res.status(404).send(e.message);
   }
