@@ -1,46 +1,49 @@
 const router = require('express').Router();
 const User = require('./user.model');
 const usersService = require('./user.service');
+const { catchErr } = require('../../middleware/handleError');
+const validate = require('../../middleware/validate');
+const { keysEtalon } = require('../../constants');
 
-router.route('/').get(async (req, res) => {
-  const users = await usersService.getAll();
-  // map user fields to exclude secret fields like "password"
-  res.json(users.map(User.toResponse));
-});
+router
+  .route('/')
+  .get(
+    catchErr(async (req, res) => {
+      const users = await usersService.getAll();
+      res.status(200).json(users.map(User.toResponse));
+    })
+  )
+  .post(
+    validate(keysEtalon.user),
+    catchErr(async (req, res) => {
+      const one = await usersService.createOne(req.body);
+      res.status(200).json(User.toResponse(one));
+    })
+  );
 
-router.route('/:id').get(async (req, res) => {
-  try {
-    const userOne = await usersService.getOne(req.params.id);
-    res.json(User.toResponse(userOne));
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
+router
+  .route('/:id')
+  .get(
+    catchErr(async (req, res) => {
+      const one = await usersService.getOne(req.params.id);
+      if (!one) throw Error('404User');
+      res.status(200).json(User.toResponse(one));
+    })
+  )
+  .delete(
+    catchErr(async (req, res) => {
+      const one = await usersService.delOne(req.params.id);
+      if (!one) throw Error('404User');
+      res.status(200).send('The user has been deleted');
+    })
+  )
+  .put(
+    validate(keysEtalon.user),
+    catchErr(async (req, res) => {
+      const body = { ...req.body, id: req.params.id };
+      const one = await usersService.updateOne(req.params.id, body);
+      res.status(200).json(User.toResponse(one));
+    })
+  );
 
-router.route('/:id').delete(async (req, res) => {
-  try {
-    await usersService.delOne(req.params.id);
-    res.status(200).end();
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
-
-router.route('/:id').put(async (req, res) => {
-  try {
-    const userOne = await usersService.updateOne(req.params.id, req.body);
-    res.json(User.toResponse(userOne));
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
-
-router.route('/').post(async (req, res) => {
-  try {
-    const userOne = await usersService.createOne(req.body);
-    res.json(User.toResponse(userOne));
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
 module.exports = router;

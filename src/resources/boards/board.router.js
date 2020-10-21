@@ -1,45 +1,58 @@
 const router = require('express').Router();
 const boardService = require('./board.service');
+const taskRouter = require('../tasks/task.router');
+const { catchErr } = require('../../middleware/handleError');
+const validate = require('../../middleware/validate');
+const { keysEtalon } = require('../../constants');
 
-router.route('/').get(async (req, res) => {
-  const boards = await boardService.getAll();
-  res.json(boards);
-});
+router.use(
+  '/:boardId/tasks',
+  (req, res, next) => {
+    req.boardId = req.params.boardId;
+    next();
+  },
+  taskRouter
+);
 
-router.route('/:id').get(async (req, res) => {
-  try {
-    const boardOne = await boardService.getOne(req.params.id);
-    res.json(boardOne);
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
+router
+  .route('/')
+  .get(
+    catchErr(async (req, res) => {
+      const boards = await boardService.getAll();
+      res.status(200).json(boards);
+    })
+  )
+  .post(
+    validate(keysEtalon.board),
+    catchErr(async (req, res) => {
+      const boardOne = await boardService.createOne(req.body);
+      res.status(200).json(boardOne);
+    })
+  );
 
-router.route('/:id').delete(async (req, res) => {
-  try {
-    await boardService.delOne(req.params.id);
-    res.status(204).end();
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
-
-router.route('/:id').put(async (req, res) => {
-  try {
-    const boardOne = await boardService.updateOne(req.params.id, req.body);
-    res.json(boardOne);
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
-
-router.route('/').post(async (req, res) => {
-  try {
-    const boardOne = await boardService.createOne(req.body);
-    res.json(boardOne);
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
+router
+  .route('/:id')
+  .get(
+    catchErr(async (req, res) => {
+      const one = await boardService.getOne(req.params.id);
+      if (!one) throw Error('404Board');
+      res.status(200).json(one);
+    })
+  )
+  .delete(
+    catchErr(async (req, res) => {
+      const one = await boardService.delOne(req.params.id);
+      if (!one) throw Error('404Board');
+      res.status(200).send('The board has been deleted');
+    })
+  )
+  .put(
+    validate(keysEtalon.board),
+    catchErr(async (req, res) => {
+      const body = { ...req.body, id: req.params.id };
+      const one = await boardService.updateOne(req.params.id, body);
+      res.status(200).json(one);
+    })
+  );
 
 module.exports = router;

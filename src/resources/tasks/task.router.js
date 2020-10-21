@@ -1,52 +1,55 @@
-const router = require('express').Router();
+const router = require('express').Router({ mergeParams: true });
 const Task = require('./task.model');
 const taskService = require('./task.service');
+const { catchErr } = require('../../middleware/handleError');
+const validate = require('../../middleware/validate');
+const { keysEtalon } = require('../../constants');
 
-router.route('/:boardId/tasks/').get(async (req, res) => {
-  const tasks = await taskService.getAll(req.params.boardId);
-  res.json(tasks);
-});
+router
+  .route('/')
+  .get(
+    catchErr(async (req, res) => {
+      // const tasks = await taskService.getByBoard(req.params.boardId);
+      const tasks = await taskService.getAll();
+      res.status(200).json(tasks);
+    })
+  )
+  .post(
+    validate(keysEtalon.task),
+    catchErr(async (req, res) => {
+      const { boardId } = req.params;
+      const body = { ...req.body, boardId };
+      const one = await taskService.createOne(body);
+      res.status(200).json(one);
+    })
+  );
 
-router.route('/:boardId/tasks/:taskId').get(async (req, res) => {
-  try {
-    const taskOne = await taskService.getOne(
-      req.params.taskId,
-      req.params.boardId
-    );
-    res.json(taskOne);
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
+router
+  .route('/:id')
+  .get(
+    catchErr(async (req, res) => {
+      const { id } = req.params;
+      const one = await taskService.getOne(id);
+      if (!one) throw Error('404Task');
+      res.status(200).json(one);
+    })
+  )
+  .delete(
+    catchErr(async (req, res) => {
+      const { id } = req.params;
+      const one = await taskService.delOne(id);
+      if (!one) throw Error('404Task');
+      res.status(200).send('The task has been deleted');
+    })
+  )
+  .put(
+    validate(keysEtalon.task),
+    catchErr(async (req, res) => {
+      const { boardId, id } = req.params;
+      const body = { ...req.body, id, boardId };
+      const taskOne = await taskService.updateOne(id, body);
+      res.status(200).json(Task.toResponse(taskOne));
+    })
+  );
 
-router.route('/:boardId/tasks/:taskId').delete(async (req, res) => {
-  try {
-    await taskService.delOne(req.params.taskId, req.params.boardId);
-    res.status(204).end();
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-});
-
-router.route('/:boardId/tasks/:id').put(async (req, res) => {
-  try {
-    const { boardId, id } = req.params;
-    const body = { ...req.body, boardId };
-    const taskOne = await taskService.updateOne(id, boardId, body);
-    res.json(Task.toResponse(taskOne));
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
-
-router.route('/:boardId/tasks/').post(async (req, res) => {
-  try {
-    const { boardId } = req.params;
-    const body = { ...req.body, boardId };
-    const taskOne = await taskService.createOne(boardId, body);
-    res.json(taskOne);
-  } catch (e) {
-    res.status(400).send(e.message);
-  }
-});
 module.exports = router;

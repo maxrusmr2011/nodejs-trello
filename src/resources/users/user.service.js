@@ -9,10 +9,9 @@ const delOne = async id => {
   const deleted = await usersRepo.delOne(id);
   const list = await taskService.getByUser(id);
   if (list.length) {
-    const listPromise = list.map(item =>
-      taskService.updateOne(item.id, item.boardId, { userId: null })
+    await Promise.all(
+      list.map(item => taskService.updateOne(item.id, { userId: null }))
     );
-    await Promise.all(listPromise);
   }
   return deleted;
 };
