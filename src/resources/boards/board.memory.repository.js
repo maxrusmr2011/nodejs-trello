@@ -1,10 +1,5 @@
-const { Board, Column } = require('./board.model');
-const listColumn = [
-  new Column({ order: 0 }),
-  new Column({ order: 1 }),
-  new Column({ order: 2 })
-];
-const dbBoards = [new Board({ columns: listColumn })];
+const { Board } = require('./board.model');
+const { dbBoards } = require('../../dataBase/memoDB');
 
 const getAll = async () => dbBoards;
 

@@ -1,9 +1,10 @@
-const usersRepo = require('./user.memory.repository');
+// const usersRepo = require('./user.memory.repository');
+const usersRepo = require('./user.mongodb.repository');
 const taskService = require('../tasks/task.service');
 
-const getAll = async () => await usersRepo.getAll();
+const getAll = () => usersRepo.getAll();
 
-const getOne = async id => await usersRepo.getOne(id);
+const getOne = id => usersRepo.getOne(id);
 
 const delOne = async id => {
   const deleted = await usersRepo.delOne(id);
@@ -16,9 +17,9 @@ const delOne = async id => {
   return deleted;
 };
 
-const updateOne = async (id, body) => await usersRepo.updateOne(id, body);
+const updateOne = (id, body) => usersRepo.updateOne(id, body);
 
-const createOne = async body => await usersRepo.createOne(body);
+const createOne = body => usersRepo.createOne(body);
 
 module.exports = {
   getAll,

@@ -1,23 +1,5 @@
 const Task = require('./task.model');
-const { dbUsers } = require('../users/user.memory.repository');
-const { dbBoards } = require('../boards/board.memory.repository');
-const dbTasks = [
-  new Task({
-    boardId: dbBoards[0].id,
-    columnId: dbBoards[0].columns[0].id,
-    userId: dbUsers[0].id
-  }),
-  new Task({
-    boardId: dbBoards[0].id,
-    columnId: dbBoards[0].columns[1].id,
-    userId: dbUsers[1].id
-  }),
-  new Task({
-    boardId: dbBoards[0].id,
-    columnId: dbBoards[0].columns[2].id,
-    userId: dbUsers[2].id
-  })
-];
+const { dbTasks } = require('../../dataBase/memoDB');
 
 const getAll = async () => dbTasks;
 

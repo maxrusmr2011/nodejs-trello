@@ -1,5 +1,9 @@
 const User = require('./user.model');
-const dbUsers = [new User(), new User(), new User()];
+const { dbUsers } = require('../../dataBase/memoDB');
+// const db = require('../../dataBase/mongoDB');
+// if (db) {
+//   console.log('get db');
+// }
 
 const getAll = async () => dbUsers;
 

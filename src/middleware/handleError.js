@@ -12,7 +12,7 @@ module.exports = (err, req, res, next) => {
       res.status(400).send(`400 Bad request ${message.slice(3)}`);
       break;
     default:
-      res.status(500).send('500 Server error');
+      res.status(500).send('500 Internal server error');
       logFile.error(err.message);
   }
 };

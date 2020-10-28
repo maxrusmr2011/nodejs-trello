@@ -37,21 +37,13 @@ module.exports = (req, res, next) => {
   finished(res, () => {
     const time = Date.now() - start;
     const { statusCode } = res;
-    // console.log(req);
+    const { method, query, params, body } = req;
+    if ('password' in body) body.password = '***';
     logFile.info(
-      `[${date}] ${
-        req.method
-      } ${statusCode} ${url} [${time}ms] query:${JSON.stringify(
-        req.query
-      )} params:${JSON.stringify(req.params)} body:${JSON.stringify(req.body)}`
+      `[${date}] ${method} ${statusCode} ${url} [${time}ms] query:${JSON.stringify(
+        query
+      )} params:${JSON.stringify(params)} body:${JSON.stringify(body)}`
     );
-    // console.log(`[${date}]`, req.method, statusCode, req.url, `[${time}ms]`);
-    // if (Object.keys(req.query).length) {
-    //   console.log('query:', req.query);
-    // }
-    // if (Object.keys(req.body).length) {
-    //   console.log('body:', req.body);
-    // }
   });
   next();
 };

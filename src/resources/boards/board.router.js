@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const boardService = require('./board.service');
+const { Board } = require('./board.mongodb.model');
 const taskRouter = require('../tasks/task.router');
 const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
@@ -19,14 +20,14 @@ router
   .get(
     catchErr(async (req, res) => {
       const boards = await boardService.getAll();
-      res.status(200).json(boards);
+      res.status(200).json(boards.map(Board.toResponse));
     })
   )
   .post(
     validate(keysEtalon.board),
     catchErr(async (req, res) => {
       const boardOne = await boardService.createOne(req.body);
-      res.status(200).json(boardOne);
+      res.status(200).json(Board.toResponse(boardOne));
     })
   );
 
@@ -36,7 +37,7 @@ router
     catchErr(async (req, res) => {
       const one = await boardService.getOne(req.params.id);
       if (!one) throw Error('404Board');
-      res.status(200).json(one);
+      res.status(200).json(Board.toResponse(one));
     })
   )
   .delete(
@@ -51,7 +52,7 @@ router
     catchErr(async (req, res) => {
       const body = { ...req.body, id: req.params.id };
       const one = await boardService.updateOne(req.params.id, body);
-      res.status(200).json(one);
+      res.status(200).json(Board.toResponse(one));
     })
   );
 

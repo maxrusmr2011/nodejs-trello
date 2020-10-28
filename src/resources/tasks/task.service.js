@@ -1,17 +1,18 @@
-const taskRepo = require('./task.memory.repository');
+// const taskRepo = require('./task.memory.repository');
+const taskRepo = require('./task.mongodb.repository');
 
-const getAll = async boardId => await taskRepo.getAll(boardId);
-const getByUser = async userId => await taskRepo.getByUser(userId);
+const getAll = boardId => taskRepo.getAll(boardId);
+const getByUser = userId => taskRepo.getByUser(userId);
 
-const getByBoard = async boardId => await taskRepo.getByBoard(boardId);
+const getByBoard = boardId => taskRepo.getByBoard(boardId);
 
-const getOne = async id => await taskRepo.getOne(id);
+const getOne = id => taskRepo.getOne(id);
 
-const delOne = async id => await taskRepo.delOne(id);
+const delOne = id => taskRepo.delOne(id);
 
-const updateOne = async (id, body) => await taskRepo.updateOne(id, body);
+const updateOne = (id, body) => taskRepo.updateOne(id, body);
 
-const createOne = async body => await taskRepo.createOne(body);
+const createOne = body => taskRepo.createOne(body);
 
 module.exports = {
   getAll,

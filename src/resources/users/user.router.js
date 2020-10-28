@@ -1,14 +1,16 @@
 const router = require('express').Router();
-const User = require('./user.model');
+const User = require('./user.mongodb.model');
 const usersService = require('./user.service');
 const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
 const { keysEtalon } = require('../../constants');
+const bcrypt = require('bcrypt');
 
 router
   .route('/')
   .get(
     catchErr(async (req, res) => {
+      console.log('now', req.user);
       const users = await usersService.getAll();
       res.status(200).json(users.map(User.toResponse));
     })
@@ -16,7 +18,10 @@ router
   .post(
     validate(keysEtalon.user),
     catchErr(async (req, res) => {
-      const one = await usersService.createOne(req.body);
+      const password = await bcrypt.hash(req.body.password, 10);
+      console.log('hash=', password);
+      const body = { ...req.body, password };
+      const one = await usersService.createOne(body);
       res.status(200).json(User.toResponse(one));
     })
   );
@@ -41,6 +46,10 @@ router
     validate(keysEtalon.user),
     catchErr(async (req, res) => {
       const body = { ...req.body, id: req.params.id };
+      if ('password' in body) {
+        body.password = await bcrypt.hash(body.password, 10);
+        console.log('hash=', body.password);
+      }
       const one = await usersService.updateOne(req.params.id, body);
       res.status(200).json(User.toResponse(one));
     })

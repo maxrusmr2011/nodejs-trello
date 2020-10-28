@@ -1,5 +1,5 @@
 const router = require('express').Router({ mergeParams: true });
-const Task = require('./task.model');
+const Task = require('./task.mongodb.model');
 const taskService = require('./task.service');
 const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
@@ -11,7 +11,7 @@ router
     catchErr(async (req, res) => {
       // const tasks = await taskService.getByBoard(req.params.boardId);
       const tasks = await taskService.getAll();
-      res.status(200).json(tasks);
+      res.status(200).json(tasks.map(Task.toResponse));
     })
   )
   .post(
@@ -20,7 +20,7 @@ router
       const { boardId } = req.params;
       const body = { ...req.body, boardId };
       const one = await taskService.createOne(body);
-      res.status(200).json(one);
+      res.status(200).json(Task.toResponse(one));
     })
   );
 
@@ -31,7 +31,7 @@ router
       const { id } = req.params;
       const one = await taskService.getOne(id);
       if (!one) throw Error('404Task');
-      res.status(200).json(one);
+      res.status(200).json(Task.toResponse(one));
     })
   )
   .delete(
