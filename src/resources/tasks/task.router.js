@@ -4,6 +4,7 @@ const taskService = require('./task.service');
 const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
 const { keysEtalon } = require('../../constants');
+const { NOT_FOUND } = require('../../utils/errors');
 
 router
   .route('/')
@@ -27,18 +28,18 @@ router
 router
   .route('/:id')
   .get(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const { id } = req.params;
       const one = await taskService.getOne(id);
-      if (!one) throw Error('404Task');
+      if (!one) return next(NOT_FOUND.text('Task'));
       res.status(200).json(Task.toResponse(one));
     })
   )
   .delete(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const { id } = req.params;
       const one = await taskService.delOne(id);
-      if (!one) throw Error('404Task');
+      if (!one) return next(NOT_FOUND.text('Task'));
       res.status(200).send('The task has been deleted');
     })
   )

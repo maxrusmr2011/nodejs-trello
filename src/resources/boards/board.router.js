@@ -5,6 +5,7 @@ const taskRouter = require('../tasks/task.router');
 const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
 const { keysEtalon } = require('../../constants');
+const { NOT_FOUND } = require('../../utils/errors');
 
 router.use(
   '/:boardId/tasks',
@@ -34,16 +35,16 @@ router
 router
   .route('/:id')
   .get(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const one = await boardService.getOne(req.params.id);
-      if (!one) throw Error('404Board');
+      if (!one) return next(NOT_FOUND.text('Board'));
       res.status(200).json(Board.toResponse(one));
     })
   )
   .delete(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const one = await boardService.delOne(req.params.id);
-      if (!one) throw Error('404Board');
+      if (!one) return next(NOT_FOUND.text('Board'));
       res.status(200).send('The board has been deleted');
     })
   )

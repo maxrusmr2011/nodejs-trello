@@ -8,18 +8,15 @@ const initialize = passport => {
     new LocalStrategy(
       { usernameField: 'login' },
       async (login, password, done) => {
-        console.log('input =', login, password);
         const user = await User.findOne({ login });
-        console.log('saved =', user);
         if (!user) {
-          return done(null, false, { message: 'No user with username' });
+          return done(Error('403login'));
         }
         try {
           if (await bcrypt.compare(password, user.password)) {
-            console.log('auth = true');
             return done(null, user);
           }
-          return done(null, false, { message: 'No user with password' });
+          return done(Error('403password'));
         } catch (error) {
           return done(error);
         }

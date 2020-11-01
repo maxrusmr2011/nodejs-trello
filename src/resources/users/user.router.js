@@ -5,12 +5,13 @@ const { catchErr } = require('../../middleware/handleError');
 const validate = require('../../middleware/validate');
 const { keysEtalon } = require('../../constants');
 const bcrypt = require('bcrypt');
+const { NOT_FOUND } = require('../../utils/errors');
 
 router
   .route('/')
   .get(
     catchErr(async (req, res) => {
-      console.log('now', req.user);
+      console.log('now', req.user, req.isAuthenticated());
       const users = await usersService.getAll();
       res.status(200).json(users.map(User.toResponse));
     })
@@ -29,16 +30,17 @@ router
 router
   .route('/:id')
   .get(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const one = await usersService.getOne(req.params.id);
-      if (!one) throw Error('404User');
+      // if (!one) throw Error('404User');
+      if (!one) return next(NOT_FOUND.text('User'));
       res.status(200).json(User.toResponse(one));
     })
   )
   .delete(
-    catchErr(async (req, res) => {
+    catchErr(async (req, res, next) => {
       const one = await usersService.delOne(req.params.id);
-      if (!one) throw Error('404User');
+      if (!one) return next(NOT_FOUND.text('User'));
       res.status(200).send('The user has been deleted');
     })
   )

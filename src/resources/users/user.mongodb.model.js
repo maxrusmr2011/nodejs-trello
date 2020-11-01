@@ -13,20 +13,24 @@ const userSchema = new mongoose.Schema(
       default: 'USER (mongodb)'
     },
     login: {
-      type: String,
-      default: 'user'
+      type: String
+      // default: 'user'
     },
     password: {
+      type: String
+      // default: 'P@55w0rd'
+    },
+    provider: {
       type: String,
-      default: 'P@55w0rd'
+      default: 'local'
     }
   },
   { versionKey: false }
 );
 
 userSchema.statics.toResponse = user => {
-  const { id, name, login } = user;
-  return { id, name, login };
+  const { id, name, login, provider } = user;
+  return { id, name, login, provider };
 };
 
 const User = mongoose.model('User', userSchema);
